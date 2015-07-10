@@ -15,10 +15,11 @@ import (
     "io"
     "net/http"
     "strconv"
+    "time"
 )
 
 const (
-    DEFAULT_MAX_WORKERS int = 5
+    DEFAULT_MAX_WORKERS int = 500
     DEFAULT_MAX_JOBS_IN_QUEUE int = 500
     DEFAULT_MAX_LENGTH int64 = 1048576
 )
@@ -46,6 +47,7 @@ type Job struct {
 
 func (p *Payload) UploadToS3() error {
     fmt.Println("Heavy work now")
+    time.Sleep(time.Second)
     return nil
 }
 
