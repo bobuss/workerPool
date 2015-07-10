@@ -19,7 +19,7 @@ import (
 
 const (
     DEFAULT_MAX_WORKERS int = 5
-    DEFAULT_MAX_QUEUES int = 5
+    DEFAULT_MAX_JOBS_IN_QUEUE int = 500
     DEFAULT_MAX_LENGTH int64 = 1048576
 )
 
@@ -28,22 +28,6 @@ var (
     MaxQueue int
     MaxLength int64
 )
-
-func initialize() {
-    var err error
-    if MaxWorker, err = strconv.Atoi(os.Getenv("MAX_WORKERS")); err != nil {
-       MaxWorker = 5
-    }
-
-    if MaxQueue, err = strconv.Atoi(os.Getenv("MAX_QUEUES")); err != nil {
-        MaxQueue = 5
-    }
-
-    if MaxLength, err = strconv.ParseInt(os.Getenv("MAX_LENGTH"), 10, 64); err != nil {
-        MaxLength = 1048576
-    }
-}
-
 
 type PayloadCollection struct {
     WindowsVersion  string    `json:"version"`
@@ -66,7 +50,7 @@ func (p *Payload) UploadToS3() error {
 }
 
 // A buffered channel that we can send work requests on.
-var JobQueue = make(chan Job)
+var JobQueue chan Job
 
 // Worker represents the worker that executes the job
 type Worker struct {
@@ -178,6 +162,25 @@ func payloadHandler(w http.ResponseWriter, r *http.Request) {
 
     w.WriteHeader(http.StatusOK)
 }
+
+
+func initialize() {
+    var err error
+    if MaxWorker, err = strconv.Atoi(os.Getenv("MAX_WORKERS")); err != nil {
+       MaxWorker = DEFAULT_MAX_WORKERS
+    }
+
+    if MaxQueue, err = strconv.Atoi(os.Getenv("MAX_QUEUES")); err != nil {
+        MaxQueue = DEFAULT_MAX_JOBS_IN_QUEUE
+    }
+
+    if MaxLength, err = strconv.ParseInt(os.Getenv("MAX_LENGTH"), 10, 64); err != nil {
+        MaxLength = DEFAULT_MAX_LENGTH
+    }
+
+    JobQueue = make(chan Job, MaxQueue)
+}
+
 
 func main() {
     initialize()
