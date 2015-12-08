@@ -16,7 +16,7 @@ Then, in another terminal
     $ curl -X POST -d '{}' localhost:8080
 
 
-You also can stress it with [https://github.com/rakyll/boom](boom)
+You also can stress it with [https://github.com/rakyll/boom](https://github.com/rakyll/boom)
 
     $ ./boom -c 100 -n 10000 -m POST -d '{"data": [{"waza": 1}]}' http://localhost:8080
 
